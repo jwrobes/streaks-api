@@ -1,11 +1,12 @@
 class MessagesController < ApplicationController
+  include Concerns::PlayerSecured
   before_action :set_message, only: [:show, :update, :destroy]
 
   # GET /messages
   def index
     @messages = Message.all
 
-    render json: ['Luke!']
+    render json: ['Luke!', 'JONATHAN', 'BLAH!']
   end
 
   # GET /messages/1
