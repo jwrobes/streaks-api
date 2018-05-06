@@ -21,4 +21,5 @@ describe TeamPlayer, type: :model do
   it { is_expected.to belong_to(:player) }
   it { is_expected.to validate_presence_of(:player) }
   it { is_expected.to validate_presence_of(:team) }
+  it { is_expected.to validate_uniqueness_of(:player_id).scoped_to(:team_id) }
 end

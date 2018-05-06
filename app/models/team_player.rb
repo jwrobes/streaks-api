@@ -20,5 +20,6 @@ belongs_to :player
 belongs_to :team
 
 validates_presence_of :player, :team
+validates :player_id, uniqueness: { scope: :team_id }
 
 end

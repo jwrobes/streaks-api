@@ -20,4 +20,5 @@ describe StreakPlayer, type: :model do
   it { is_expected.to belong_to(:streak) }
   it { is_expected.to validate_presence_of(:player) }
   it { is_expected.to validate_presence_of(:streak) }
+  it { is_expected.to validate_uniqueness_of(:player_id).scoped_to(:streak_id) }
 end
