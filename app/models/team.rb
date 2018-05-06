@@ -1,13 +1,16 @@
 # == Schema Information
 #
-# Table name: messages
+# Table name: teams
 #
 #  id         :bigint(8)        not null, primary key
-#  body       :text
-#  subject    :string
+#  name       :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+# Indexes
+#
+#  index_teams_on_name  (name) UNIQUE
+#
 
-class Message < ApplicationRecord
+class Team < ApplicationRecord
 end
