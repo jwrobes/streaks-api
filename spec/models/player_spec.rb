@@ -16,6 +16,15 @@
 
 require 'rails_helper'
 
-RSpec.describe Player, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Player, type: :model do
+
+  it { is_expected.to have_many(:teams).through(:team_players) }
+  it { is_expected.to have_many(:streaks).through(:streak_players) }
+  it { is_expected.to have_many(:habits) }
+
+  it { is_expected.to validate_presence_of(:user_name) }
+  it { is_expected.to validate_presence_of(:uuid) }
+
+  it { is_expected.to validate_uniqueness_of(:uuid) }
+  it { is_expected.to validate_uniqueness_of(:user_name) }
 end

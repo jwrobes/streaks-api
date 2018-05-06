@@ -15,4 +15,13 @@
 #
 
 class Player < ApplicationRecord
+  has_many :team_players
+  has_many :teams, through: :team_players
+  has_many :streak_players
+  has_many :streaks, through: :streak_players
+  has_many :habits
+
+  validates :user_name, :uuid, presence: true
+  validates :uuid, :user_name, uniqueness: true
+
 end

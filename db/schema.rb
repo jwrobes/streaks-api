@@ -10,10 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_06_045945) do
+ActiveRecord::Schema.define(version: 2018_05_06_051224) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "habits", force: :cascade do |t|
+    t.integer "streak_id"
+    t.integer "player_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["streak_id", "player_id"], name: "index_habits_on_streak_id_and_player_id"
+  end
 
   create_table "messages", force: :cascade do |t|
     t.string "subject"
@@ -29,6 +37,26 @@ ActiveRecord::Schema.define(version: 2018_05_06_045945) do
     t.datetime "updated_at", null: false
     t.index ["user_name"], name: "index_players_on_user_name", unique: true
     t.index ["uuid"], name: "index_players_on_uuid", unique: true
+  end
+
+  create_table "streak_players", force: :cascade do |t|
+    t.integer "streak_id"
+    t.integer "player_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["streak_id", "player_id"], name: "index_streak_players_on_streak_id_and_player_id"
+  end
+
+  create_table "streaks", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.integer "habits_per_week"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.integer "team_id"
+    t.string "status", default: "open", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "team_players", force: :cascade do |t|
