@@ -16,7 +16,7 @@
 
 FactoryBot.define do
   factory :player do
-    user_name "MyString"
-    uuid "MyString"
+    sequence(:user_name) { |n| "user#{n}" }
+    sequence(:uuid) { |n| "user_uuid#{n}" }
   end
 end
