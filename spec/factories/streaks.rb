@@ -3,10 +3,11 @@
 # Table name: streaks
 #
 #  id              :bigint(8)        not null, primary key
+#  activated_at    :datetime
+#  completed_at    :datetime
 #  description     :text
 #  ended_at        :datetime
 #  habits_per_week :integer
-#  started_at      :datetime
 #  status          :string           default("open"), not null
 #  title           :string
 #  created_at      :datetime         not null
@@ -19,9 +20,15 @@ FactoryBot.define do
     title "MyString"
     description "MyText"
     habits_per_week 1
-    started_at "2018-05-05 22:08:47"
-    ended_at "2018-05-05 22:08:47"
-    team_id 1
-    status "MyString"
+    status "open"
+  end
+
+  trait :open do
+    status "open"
+  end
+
+  trait :active do
+    team
+    status "active"
   end
 end

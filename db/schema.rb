@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_06_051224) do
+ActiveRecord::Schema.define(version: 2018_05_08_153621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,12 +51,13 @@ ActiveRecord::Schema.define(version: 2018_05_06_051224) do
     t.string "title"
     t.text "description"
     t.integer "habits_per_week"
-    t.datetime "started_at"
     t.datetime "ended_at"
     t.integer "team_id"
     t.string "status", default: "open", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "activated_at"
+    t.datetime "completed_at"
   end
 
   create_table "team_players", force: :cascade do |t|
