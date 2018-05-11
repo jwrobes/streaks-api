@@ -26,13 +26,13 @@ private
     @auth_token["sub"]
   end
 
-  # def current_player
-  #   @_current_player ||= (
-  #     Player.find_or_create_by(uuid: authenticated_uuid) do |player|
-  #       player.username = authenticated_username
-  #     end
-  #   )
-  # end
+  def current_player
+    @_current_player ||= (
+      Player.find_or_create_by(uuid: authenticated_uuid) do |player|
+        player.username = authenticated_username
+      end
+    )
+  end
 
   def authenticated_player(auth_token)
     player_client_id = Rails.application.credentials[:aws][:strks_app][:client_id]

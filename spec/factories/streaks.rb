@@ -27,8 +27,23 @@ FactoryBot.define do
     status "open"
   end
 
+  trait :with_players do
+    transient do
+      players_count 3
+    end
+    after(:create) do |streak, options|
+      create_list :player, (options.players_count), streaks: [streak]
+    end
+  end
+
   trait :active do
+    transient do
+      players_count 6
+    end
     team
-    status "active"
+    after(:create) do |streak, options|
+      create_list :player, (options.players_count), streaks: [streak]
+    end
+    after(:create, &:activate!)
   end
 end
