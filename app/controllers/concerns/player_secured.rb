@@ -10,7 +10,7 @@ module Concerns::PlayerSecured
     before_action :authenticate_request!
   end
 
-private
+  private
 
   def authenticate_request!
     @auth_token = auth_token.first
