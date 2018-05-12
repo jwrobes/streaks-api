@@ -37,21 +37,28 @@ gem 'bootsnap', '>= 1.1.0', require: false
 group :test do
   # gem 'json-schema'
   # gem 'jsonapi-rspec'
+# gems added for jsonapi suite
 end
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'database_cleaner'
-  gem 'factory_bot_rails'
-  gem 'faker'
+  # gem 'factory_bot_rails'
+  # gem 'faker'
   gem 'pry-rails'
-  gem 'rspec'
-  gem 'rspec-mocks'
-  gem 'rspec-rails'
+  gem 'rspec', '~> 3.5.0'
+  gem 'rspec-mocks', '~> 3.5.0'
+  # gem 'rspec-rails'
   gem 'rspec_junit_formatter'
   gem 'shoulda-matchers', '~> 3.1'
   gem 'timecop'
+# gems added for jsonapi suite
+  gem 'rspec-rails', '~> 3.5.2'
+  gem 'factory_bot_rails', '~> 4.0'
+  gem 'faker', '~> 1.7'
+  gem 'swagger-diff', '~> 1.1'
+
 end
 
 group :development do
@@ -65,3 +72,11 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+# gems added for json api suite
+gem 'jsonapi_suite', '~> 0.7'
+gem 'jsonapi-rails', '~> 0.3.0'
+gem 'jsonapi_swagger_helpers', '~> 0.6', require: false
+gem 'jsonapi_spec_helpers', '~> 0.4', require: false
+gem 'kaminari', '~> 1.0'
+

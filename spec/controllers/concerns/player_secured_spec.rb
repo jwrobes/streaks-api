@@ -3,8 +3,20 @@ require 'rails_helper'
 describe Concerns::PlayerSecured do
   controller(ApplicationController) do
     include Concerns::PlayerSecured
+    include JsonapiSuite::ControllerMixin
+    jsonapi resource: StreakResource
+    strong_resource :streak
+
+
+    register_exception JsonapiCompliable::Errors::RecordNotFound,
+      status: 404
+    rescue_from Exception do |e|
+      handle_exception(e)
+    end
+
     def fake_action
-      render json: { stuff: "yeah1" }
+      @open_streaks = Streak.open.all
+      render_jsonapi(@open_streaks)
     end
   end
   before do
@@ -21,7 +33,7 @@ describe Concerns::PlayerSecured do
       end
 
       it "returns error json response" do
-        request.headers.merge!(headers(http_token))
+       request.headers.merge!(headers(http_token))
 
         get 'fake_action'
         json = JSON.parse(response.body)
@@ -33,7 +45,6 @@ describe Concerns::PlayerSecured do
       it "returns the normal json response when client id is valid" do
         valid_aws_token = aws_token
         mock_json_web_token(http_token, valid_aws_token)
-
         request.headers.merge!(headers(http_token))
         get 'fake_action'
 
@@ -46,7 +57,7 @@ describe Concerns::PlayerSecured do
         mock_json_web_token(http_token, aws_token)
 
         request.headers.merge!(headers(http_token))
-        get 'fake_action'
+        get 'fake_action', params: {}, format: :json
 
         json = JSON.parse(response.body)
         expect(json).to eq(error_json_response)
@@ -54,12 +65,23 @@ describe Concerns::PlayerSecured do
     end
   end
 
-  def error_json_response
-    { "errors" => ['Not Authenticated'] }
+  def json_api_error_json_response
+    {
+      "errors" => [
+        {"code"=>"internal_server_error", "status"=>"500", "title"=>"Error", "detail"=>"We've notified our engineers and hope to address this issue shortly.", "meta"=>{}}
+      ]
+    }
   end
 
+  def error_json_response
+    {
+      "errors" => ["Not Authenticated"]
+    }
+  end
+
+
   def dummy_json
-    { "stuff" => "yeah1" }
+    {"data"=>[], "meta"=>{}, "jsonapi"=>{"version"=>"1.0"}}
   end
 
   def mock_json_web_token(http_token, aws_token)
