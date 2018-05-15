@@ -40,10 +40,26 @@ FactoryBot.define do
     transient do
       players_count 6
     end
-    team
     after(:create) do |streak, options|
       create_list :player, (options.players_count), streaks: [streak]
     end
+    after(:create) do |streak|
+      create :team, uuid: streak.players.map(&:id).join, streaks: [streak]
+    end
     after(:create, &:activate!)
+  end
+
+  trait :completed do
+    transient do
+      players_count 6
+    end
+    after(:create) do |streak, options|
+      create_list :player, (options.players_count), streaks: [streak]
+    end
+    after(:create) do |streak|
+      create :team, uuid: streak.players.map(&:id).join, streaks: [streak]
+    end
+    after(:create, &:activate!)
+    after(:create, &:complete!)
   end
 end
