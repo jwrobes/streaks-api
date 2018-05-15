@@ -22,6 +22,7 @@ class Streak < ApplicationRecord
   has_many :players, through: :streak_players, after_add: :notify_on_player_add, after_remove: :notify_on_player_remove
 
   validates :status, presence: true
+  validates_uniqueness_of :team, conditions: -> { where(status: 'active')  }
   validate :minimum_number_of_players_for_active_streak
   validate :minimum_number_of_players_for_open_streak
   validate :team_presence_for_active_streak
@@ -44,6 +45,10 @@ class Streak < ApplicationRecord
 
     event :activate do
       transition :open => :active
+    end
+
+    before_transition any => :complete do |streak|
+      streak.completed_at = Time.zone.now
     end
 
     event :complete do
