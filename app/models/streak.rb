@@ -21,7 +21,7 @@ class Streak < ApplicationRecord
   has_many :habits
   has_many :players, through: :streak_players, after_add: :notify_on_player_add, after_remove: :notify_on_player_remove
 
-  validates :status, presence: true
+  validates :status, :habits_per_week, :title,  presence: true
   validates_uniqueness_of :team, conditions: -> { where(status: 'active')  }
   validate :minimum_number_of_players_for_active_streak
   validate :minimum_number_of_players_for_open_streak

@@ -60,6 +60,19 @@ describe Streak, type: :model do
     end
   end
 
+  describe "when a player joins a streak and it would activate a second streak for a team" do
+    xit "is expected to be invalid" do
+      # create active streak
+      active_streak = create(:streak, :active)
+      active_streak.reload
+      open_streak = create(:streak, :open)
+      new_player = active_streak.players.first
+      open_streak.players << active_streak.players.last(5)
+
+      expect{open_streak.players << new_player}.to raise_error(ActiveRecord::RecordInvalid)
+    end
+  end
+
   describe "#activate!" do
     context "with streak with less than players" do
       it "is expected to raise state transition error" do
