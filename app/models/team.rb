@@ -18,14 +18,4 @@ class Team < ApplicationRecord
   has_many :team_players
   has_many :players, through: :team_players
   has_many :streaks
-
-  # validate :only_one_active_streak_for_team
-
-  private
-
-  def only_one_active_streak_for_team
-    if streaks.active.count == 1
-      errors.add(:streaks, "Team can have only one active streak at a time")
-    end
-  end
 end

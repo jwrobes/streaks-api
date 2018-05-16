@@ -19,4 +19,16 @@ FactoryBot.define do
     name "MyString"
     sequence(:uuid) { |n| "team_uuid#{n}" }
   end
+
+  trait :with_team_players do
+    transient do
+      team_players_count 6
+    end
+    after(:create) do |team, options|
+      create_list :player, (options.team_players_count), teams: [team]
+    end
+    after(:create) do |team, options|
+      team.update!(uuid: team.players.map(&:id).sort.join)
+    end
+  end
 end

@@ -81,6 +81,18 @@ describe OpenStreaksController, type: :controller do
         expect(Streak.last.players.first).to eq(current_player)
       end
     end
+
+    context "with invalid attributes" do
+      it "responds with a failure and returns habits per week blank" do
+        # mock authenticated token
+        current_player = create(:player)
+        login_as(current_player)
+
+        post :create, params: invalid_streak_params, format: :json
+        expect(response.code).to eq("422")
+        expect(JSON.parse(response.body)["errors"].first["detail"]).to eq("Habits per week can't be blank")
+      end
+    end
   end
 
   describe "PUT #update" do
@@ -152,16 +164,14 @@ describe OpenStreaksController, type: :controller do
       end
 
       context "when there is already an active streak for the new streak's players" do
-        xit "is expected to be a failure" do
+        xit "is expected to not add player" do
           active_streak = create(:streak, :active)
           open_streak = create(:streak, :open)
           current_player = active_streak.players.first
-          open_streak.players << active_streak.players.select { |p| p != current_player }
+          open_streak.players << active_streak.players.last(5)
           login_as(current_player)
-
-            patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
-          # expect(response).to be_success
-          expect(response.body).to eq({})
+          patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+            not_to change{StreakPlayer.count}
         end
       end
 
@@ -222,8 +232,20 @@ describe OpenStreaksController, type: :controller do
         "type": "streaks",
         "attributes": {
           "title": "Eat cake every day",
-          "description": "This is where you eat freaking cake bitch",
-          "habits_per_week": 7,
+          "habits_per_week": 1,
+          "description": "This is where you eat freaking cake bitch"
+        }
+      }
+    }
+  end
+
+  def invalid_streak_params
+    {
+      "data": {
+        "type": "streaks",
+        "attributes": {
+          "title": "Eat cake every day",
+          "description": "This is where you eat freaking cake bitch"
         }
       }
     }
