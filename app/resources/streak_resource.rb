@@ -13,4 +13,9 @@ class StreakResource < ApplicationResource
     scope: -> { Player.all },
     resource: PlayerResource,
     foreign_key: { streak_players: :tag_id  }
+
+  has_many :habits,
+    resource: HabitResource,
+    foreign_key: :streak_id,
+    scope: -> { Habit.all  }
 end
