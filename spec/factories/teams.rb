@@ -16,7 +16,7 @@
 
 FactoryBot.define do
   factory :team do
-    name "MyString"
+    sequence(:name) { |n| "TeamName#{n}" }
     sequence(:uuid) { |n| "team_uuid#{n}" }
   end
 
