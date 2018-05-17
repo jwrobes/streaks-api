@@ -2,17 +2,18 @@
 #
 # Table name: streaks
 #
-#  id              :bigint(8)        not null, primary key
-#  activated_at    :datetime
-#  completed_at    :datetime
-#  description     :text
-#  ended_at        :datetime
-#  habits_per_week :integer
-#  status          :string           default("open"), not null
-#  title           :string
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  team_id         :integer
+#  id                 :bigint(8)        not null, primary key
+#  activated_at       :datetime
+#  completed_at       :datetime
+#  description        :text
+#  ended_at           :datetime
+#  habits_per_week    :integer
+#  max_habits_per_day :integer          default(1), not null
+#  status             :string           default("open"), not null
+#  title              :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  team_id            :integer
 #
 
 require 'rails_helper'
@@ -114,6 +115,31 @@ describe Streak, type: :model do
           expect { streak.activate! }.to raise_error(StateMachines::InvalidTransition)
         end
       end
+    end
+  end
+
+  context "when a player tries to add more than the max daily habits in a day" do
+    it "does not save habit" do
+      streak = create(:streak, :active, max_habits_per_day: 1)
+      player = streak.players.first
+      second_habit_completed_time = Time.zone.now
+
+      first_habit_on_day = create(:habit, streak: streak, player: player, completed_at: second_habit_completed_time - 1.hour)
+      second_habit_on_day = build(:habit, streak: streak, player: player, completed_at: second_habit_completed_time)
+      second_habit_on_day.save
+      expect(second_habit_on_day).to be_invalid
+    end
+
+    it "adds errors to the streak" do
+      streak = create(:streak, :active, max_habits_per_day: 1)
+      player = streak.players.first
+      second_habit_completed_time = Time.zone.now
+
+      first_habit_on_day = create(:habit, streak: streak, player: player, completed_at: second_habit_completed_time - 1.hour)
+      second_habit_on_day = build(:habit, streak: streak, player: player, completed_at: second_habit_completed_time)
+      second_habit_on_day.save
+
+      expect(second_habit_on_day.errors).to be_present
     end
   end
 

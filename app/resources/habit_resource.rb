@@ -4,9 +4,15 @@ class HabitResource < ApplicationResource
   # Used for associating this resource with a given input.
   # This should match the 'type' in the corresponding serializer.
   type :habits
-  # Associate to a Model object so we know how to persist.
   model Habit
   # Customize your resource here. Some common examples:
+  def create(create_params)
+    create_params[:completed_at] = Time.zone.parse(create_params[:completed_at])
+    m = model.new(create_params)
+    m.save
+    m
+  end
+
   #
   # === Allow ?filter[name] query parameter ===
   # allow_filter :name
