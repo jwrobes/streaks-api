@@ -35,6 +35,7 @@ StrongResources.configure do
     attribute :title, :string
     attribute :description, :string
     attribute :habits_per_week, :integer
+    attribute :max_habits_per_day, :integer
     attribute :status, :string
     attribute :activated_at, :timestamp
     attribute :completed_at, :timestamp
@@ -49,6 +50,7 @@ StrongResources.configure do
     attribute :uuid, :string
   end
   strong_resource :habit do
+    attribute :completed_at, :string
     attribute :streak_id, :integer
     attribute :player_id, :integer
   end

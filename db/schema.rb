@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_15_042449) do
+ActiveRecord::Schema.define(version: 2018_05_17_041653) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 2018_05_15_042449) do
     t.integer "player_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "completed_at"
     t.index ["streak_id", "player_id"], name: "index_habits_on_streak_id_and_player_id"
   end
 
@@ -58,6 +59,7 @@ ActiveRecord::Schema.define(version: 2018_05_15_042449) do
     t.datetime "updated_at", null: false
     t.datetime "activated_at"
     t.datetime "completed_at"
+    t.integer "max_habits_per_day", default: 1, null: false
   end
 
   create_table "team_players", force: :cascade do |t|

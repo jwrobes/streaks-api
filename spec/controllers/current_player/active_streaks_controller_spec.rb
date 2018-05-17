@@ -71,6 +71,28 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
       expect(active_streak.habits.count).to eq(1)
 
     end
+
+    context "when a current player adds over the daily limit for the streak" do
+      it "does not create a new habit for this streak for current player" do
+        # mock authenticated token
+        streak = create(:streak, :active, max_habits_per_day: 1)
+        current_player = streak.players.first
+        second_habit_completed_time = Time.zone.now
+
+        login_as(current_player)
+
+        first_habit_on_day = create(:habit, streak: streak, player: current_player, completed_at: second_habit_completed_time - 1.hour)
+
+        expect do
+          patch :update, params: add_habit_to_active_streak_update_params(streak, current_player), format: :json
+        end.
+        not_to change { Habit.count }.from(1)
+
+        expect(response.code).to eq("422")
+        expect(current_player.reload.habits.count).to eq(1)
+        expect(streak.habits.count).to eq(1)
+      end
+    end
   end
 
   describe "#GET show" do
@@ -119,7 +141,11 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         {
           type: "habits",
           :"temp-id" => "abc123",
-          attributes: { player_id: "#{player.id}", streak_id: "#{active_streak.id}" }
+          attributes: {
+            player_id: "#{player.id}",
+            streak_id: "#{active_streak.id}",
+            completed_at: Time.zone.now.to_s
+          }
         }
       ]
     }
