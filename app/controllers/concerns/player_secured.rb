@@ -13,7 +13,7 @@ module Concerns::PlayerSecured
   private
 
   def authenticate_request!
-    @auth_token = auth_token.first
+    @auth_token = auth_token
   rescue JWT::VerificationError, JWT::DecodeError, InauthenticatedPlayerError
     render json: { errors: ['Not Authenticated'] }, status: :unauthorized
   end
@@ -29,7 +29,7 @@ module Concerns::PlayerSecured
   def current_player
     @_current_player ||= (
       Player.find_or_create_by(uuid: authenticated_uuid) do |player|
-        player.username = authenticated_username
+        player.user_name = authenticated_username
       end
     )
   end

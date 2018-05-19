@@ -12,7 +12,7 @@ class StreakResource < ApplicationResource
   has_and_belongs_to_many :players,
     scope: -> { Player.all },
     resource: PlayerResource,
-    foreign_key: { streak_players: :tag_id  }
+    foreign_key: { streak_players: :player_id  }
 
   has_many :habits,
     resource: HabitResource,
