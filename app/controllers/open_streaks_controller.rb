@@ -8,7 +8,7 @@ class OpenStreaksController < ApplicationController
   before_action :apply_strong_params, only: [:create, :update]
 
   def index
-    @open_streaks = Streak.includes(:players).open
+    @open_streaks = Streak.open
     render_jsonapi(@open_streaks)
   end
 
