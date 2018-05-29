@@ -9,6 +9,13 @@ class StreakResource < ApplicationResource
     instance
   end
 
+  def create(create_params)
+    m = model.new(create_params)
+    m.players << current_player
+    m.save
+    m
+  end
+
   has_and_belongs_to_many :players,
     scope: -> { Player.all },
     resource: PlayerResource,
@@ -18,4 +25,10 @@ class StreakResource < ApplicationResource
     resource: HabitResource,
     foreign_key: :streak_id,
     scope: -> { Habit.all  }
+
+  private
+
+  def current_player
+    context.current_player
+  end
 end

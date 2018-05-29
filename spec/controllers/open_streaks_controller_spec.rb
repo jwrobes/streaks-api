@@ -48,6 +48,27 @@ describe OpenStreaksController, type: :controller do
         to change { Streak.count }.from(0).to(1)
     end
 
+    it "creates a new streak with players" do
+      # mock authenticated token
+      current_player = create(:player)
+      login_as(current_player)
+
+      expect { post :create, params: streak_params, format: :json }.
+        to change { StreakPlayer.count }.from(0).to(1)
+    end
+    it "creates adds current player to streak" do
+      # mock authenticated token
+      current_player = create(:player)
+      login_as(current_player)
+
+      expect do
+        post :create, params: streak_params, format: :json
+      end.
+      to change { Player.last.streaks.count }.from(0).to(1)
+      expect(Streak.last.players.first).to eq(current_player)
+    end
+
+
     context "with player attributes" do
       it "creates a new streak" do
         # mock authenticated token

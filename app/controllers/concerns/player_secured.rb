@@ -10,6 +10,14 @@ module Concerns::PlayerSecured
     before_action :authenticate_request!
   end
 
+  def current_player
+    @_current_player ||= (
+      Player.find_or_create_by(uuid: authenticated_uuid) do |player|
+        player.user_name = authenticated_username
+      end
+    )
+  end
+
   private
 
   def authenticate_request!
@@ -24,14 +32,6 @@ module Concerns::PlayerSecured
 
   def authenticated_uuid
     @auth_token["sub"]
-  end
-
-  def current_player
-    @_current_player ||= (
-      Player.find_or_create_by(uuid: authenticated_uuid) do |player|
-        player.user_name = authenticated_username
-      end
-    )
   end
 
   def authenticated_player(auth_token)
