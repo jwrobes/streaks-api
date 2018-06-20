@@ -1,5 +1,5 @@
 module CurrentPlayer
-  class ActiveStreaksController < ApplicationController
+  class ActiveStreaksController < JsonapiApplicationController
     # Mark this as a JSONAPI controller, associating with the given resource
     jsonapi resource: StreakResource
     strong_resource :streak do

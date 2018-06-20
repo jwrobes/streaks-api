@@ -1,6 +1,6 @@
-class OpenStreaksController < ApplicationController
+class OpenStreaksController < JsonapiApplicationController
   include Concerns::PlayerSecured
-  jsonapi resource: StreakResource
+  jsonapi resource: CurrentPlayer::StreakResource
   strong_resource :streak do
     has_many :players
   end
@@ -8,8 +8,13 @@ class OpenStreaksController < ApplicationController
   before_action :apply_strong_params, only: [:create, :update]
 
   def index
-    @open_streaks = Streak.open
-    render_jsonapi(@open_streaks)
+    if params[:without_user]
+    open_streaks = Streak.where.not(id: current_player.streaks.map(&:id))
+    else
+      open_streaks = Streak.open
+    end
+
+    render_jsonapi(open_streaks)
   end
 
   def create

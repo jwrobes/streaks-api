@@ -1,52 +1,6 @@
 require 'rails_helper'
 
-describe OpenStreaksController, type: :controller do
-
-  describe "GET #index" do
-    it "returns a success response with authenticated token" do
-      # mock authenticated token
-      current_player = create(:player)
-      login_as(current_player)
-
-      open_streak_with_players = create(:streak, :open, :with_players, players_count: 4)
-      active_streak_with_players = create(:streak, :active, :with_players, players_count: 6)
-
-      get :index, params: {}, format: :json
-      expect(response).to be_successful
-    end
-
-    it "only return open streaks" do
-      current_player = create(:player)
-      login_as(current_player)
-
-      open_streak_with_players = create(:streak, :open, :with_players, players_count: 4)
-      active_streak_with_players = create(:streak, :active, :with_players, players_count: 6)
-
-      get :index, params: {}, format: :json
-      data = JSON.parse(response.body)["data"]
-      streak_ids = data.map {|r| r["id"]}
-      expect(streak_ids).not_to include(active_streak_with_players.id.to_s)
-    end
-
-    context "with params current_user false" do
-      it "only returns streaks that are not joined by the current user" do
-        current_player = create(:player)
-        login_as(current_player)
-
-        open_streak_without_current_player = create(:streak, :open, :with_players, players_count: 4)
-        open_streak_with_current_player = create(:streak, :open, :with_players, players_count: 4)
-        open_streak_with_current_player.players << current_player
-
-        get :index, params: {without_user: true}, format: :json
-        data = JSON.parse(response.body)["data"]
-        streak_ids = data.map {|r| r["id"]}
-        expect(streak_ids).to include(open_streak_without_current_player.id.to_s)
-        expect(streak_ids).not_to include(open_streak_with_current_player.id.to_s)
-      end
-
-    end
-
-  end
+describe CurrentPlayer::OpenStreaksController, type: :controller do
 
   describe "POST #create" do
     it "responds successfully" do
@@ -88,41 +42,6 @@ describe OpenStreaksController, type: :controller do
       expect(Streak.last.players.first).to eq(current_player)
     end
 
-
-    context "with player attributes" do
-      it "creates a new streak" do
-        # mock authenticated token
-        current_player = create(:player)
-        login_as(current_player)
-
-        expect { post :create, params: streak_params_with_players(current_player), format: :json }.
-          to change { Streak.count }.from(0).to(1)
-      end
-
-      it "creates a new streak with players" do
-        # mock authenticated token
-        current_player = create(:player)
-        login_as(current_player)
-
-        expect do
-          post :create, params: streak_params_with_players(current_player), format: :json
-        end.
-          to change { StreakPlayer.count }.from(0).to(1)
-      end
-
-      it "creates adds current player to streak" do
-        # mock authenticated token
-        current_player = create(:player)
-        login_as(current_player)
-
-        expect do
-          post :create, params: streak_params_with_players(current_player), format: :json
-        end.
-        to change { Player.last.streaks.count }.from(0).to(1)
-        expect(Streak.last.players.first).to eq(current_player)
-      end
-    end
-
     context "with invalid attributes" do
       it "responds with a failure and returns habits per week blank" do
         # mock authenticated token
@@ -143,7 +62,7 @@ describe OpenStreaksController, type: :controller do
       current_player = create(:player)
       login_as(current_player)
 
-      patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+      patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
       expect(response).to be_successful
     end
 
@@ -154,7 +73,7 @@ describe OpenStreaksController, type: :controller do
       login_as(current_player)
 
       expect do
-        patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+        patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
       end.
       to change { Player.find(current_player.id).streaks.count }.from(0).to(1)
       expect(Streak.last.players).to include(current_player)
@@ -167,9 +86,37 @@ describe OpenStreaksController, type: :controller do
       login_as(current_player)
 
       expect do
-        patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+        patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
       end.
       to change { StreakPlayer.count }.from(3).to(4)
+    end
+
+    context "when a player tries to join a streak they already have joined" do
+
+      it "does not add the player to the streak" do
+        open_streak = create(:streak, :open, :with_players)
+        current_player = create(:player)
+        open_streak.players << current_player
+        open_streak.save
+        login_as(current_player)
+
+        expect do
+          patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+        end.
+        not_to change { StreakPlayer.count }
+      end
+
+      it "returns a 422 with correct errors" do
+        open_streak = create(:streak, :open, :with_players)
+        current_player = create(:player)
+        open_streak.players << current_player
+        open_streak.save
+        login_as(current_player)
+
+        patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+        expect(response.code).to eq("422")
+        expect(JSON.parse(response.body)["errors"].first["detail"]).to eq("Validation failed: Player can only join a streak once.")
+      end
     end
 
     context "when new player added to streak meets minimum players for streak" do
@@ -179,7 +126,7 @@ describe OpenStreaksController, type: :controller do
         current_player = create(:player)
         login_as(current_player)
         expect do
-          patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+          patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
         end.
         to change { open_streak.reload.status }.from("open").to("active")
       end
@@ -190,7 +137,7 @@ describe OpenStreaksController, type: :controller do
           current_player = create(:player)
           login_as(current_player)
           expect do
-            patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+            patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
           end.
           to change { Team.count }.from(0).to(1)
         end
@@ -199,20 +146,24 @@ describe OpenStreaksController, type: :controller do
           open_streak = create(:streak, :open, :with_players, players_count: 5)
           current_player = create(:player)
           login_as(current_player)
-          patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+          patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
           expect(open_streak.reload.team.uuid).to eq(open_streak.players.map(&:id).sort.join)
         end
       end
 
       context "when there is already an active streak for the new streak's players" do
-        xit "is expected to not add player" do
+        it "is expected to not add player" do
           active_streak = create(:streak, :active)
           open_streak = create(:streak, :open)
           current_player = active_streak.players.first
           open_streak.players << active_streak.players.last(5)
           login_as(current_player)
-          patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
-            not_to change{StreakPlayer.count}
+          expect do
+          patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+          end.
+          not_to change{StreakPlayer.count}
+          expect(response.code).to eq("422")
+          expect(JSON.parse(response.body)["errors"].first["detail"]).to eq("Validation failed: Team has already been taken")
         end
       end
 
@@ -225,7 +176,7 @@ describe OpenStreaksController, type: :controller do
           login_as(current_player)
 
           expect do
-            patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+            patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
           end.
           not_to change { Team.count }
         end
@@ -243,7 +194,7 @@ describe OpenStreaksController, type: :controller do
           login_as(current_player)
 
           # join the active streak
-          patch :update, params: join_active_streak_update_params(open_streak, current_player), format: :json
+          patch :update, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
 
           expect(open_streak.reload.team).to eq(active_streak.team)
         end
@@ -251,17 +202,79 @@ describe OpenStreaksController, type: :controller do
     end
   end
 
+  describe "DELETE #destroy" do
+    it "responds successfully" do
+      # mock authenticated token
+      open_streak = create(:streak, :open, :with_players)
+      current_player = create(:player)
+      open_streak.players << current_player
+      login_as(current_player)
+
+      delete :destroy, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+      expect(response).to be_successful
+    end
+
+    it "removes the current player from the open streak" do
+      # mock authenticated token
+      open_streak = create(:streak, :open, :with_players)
+      current_player = create(:player)
+      open_streak.players << current_player
+      login_as(current_player)
+
+      delete :destroy, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+      expect(open_streak.reload.players).not_to include(current_player)
+    end
+
+    it "returns streak response with other players still included" do
+      open_streak = create(:streak, :open, :with_players)
+      current_player = create(:player)
+      open_streak.players << current_player
+      login_as(current_player)
+
+      delete :destroy, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+      expect(response.code).to eq("200")
+      response_body = JSON.parse(response.body)
+      player_ids =  response_body["data"]["relationships"]["players"]["data"].map { |p| p["id"] }
+      expect(player_ids).to match_array(open_streak.reload.players.map{ |p| p.id.to_s })
+    end
+
+    context "when there only the current player is in the open streak prior to delete" do
+
+      it "destroys the open streak" do
+        open_streak = create(:streak, :open)
+        current_player = create(:player)
+        open_streak.players << current_player
+        login_as(current_player)
+
+        delete :destroy, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+        expect(Streak.where(id: open_streak.id).count).to eq(0)
+      end
+
+      it "destroys the open streak" do
+        open_streak = create(:streak, :open)
+        current_player = create(:player)
+        open_streak.players << current_player
+        login_as(current_player)
+
+        delete :destroy, params: join_active_streak_update_params_no_player_id(open_streak), format: :json
+        expect(response.code).to eq("200")
+        # expect(JSON.parse(response.body)).to eq({})
+      end
+    end
+  end
+
+
   def join_active_streak_update_params_no_player_id(open_streak)
     {
       id: open_streak.id,
       "data": {
         "type": "streaks",
-        "id": "#{open_streak.id}"
+        "id": "#{open_streak.id}",
       }
     }
   end
 
-  def join_active_streak_update_params(open_streak, player)
+  def join_active_streak_update_params(open_streak)
     {
       id: open_streak.id,
       "data": {
@@ -320,7 +333,7 @@ describe OpenStreaksController, type: :controller do
       included: [
         {
           type: "players",
-          id: "1",
+          id: "#{player.id}",
         }
       ]
     }

@@ -17,5 +17,5 @@ class StreakPlayer < ApplicationRecord
   belongs_to :player
   belongs_to :streak
   validates_presence_of :player, :streak
-  validates :player_id, uniqueness: { scope: :streak_id }
+  validates :player_id, uniqueness: { scope: :streak_id, message: "can only join a streak once." }
 end

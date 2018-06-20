@@ -11,14 +11,13 @@ class StreakResource < ApplicationResource
 
   def create(create_params)
     m = model.new(create_params)
-    m.players << current_player
     m.save
     m
   end
 
   has_and_belongs_to_many :players,
     scope: -> { Player.all },
-    resource: PlayerResource,
+    resource: ::PlayerResource,
     foreign_key: { streak_players: :streak_id }
 
   has_many :habits,
