@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
   scope path: '/streaks_api' do
     scope path: '/v1' do
       resources :open_streaks, only: [:index, :create, :update]

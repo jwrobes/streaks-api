@@ -1,0 +1,9 @@
+development:
+  host: 'localhost'
+  port: '6379'
+test:
+  host: 'localhost'
+  port: '6379'
+production:
+  host: 'streaks-api-cache-001.xtae8e.0001.usw1.cache.amazonaws.com'
+  port: '6379'
