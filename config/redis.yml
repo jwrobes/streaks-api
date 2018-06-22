@@ -5,5 +5,5 @@ test:
   host: 'localhost'
   port: '6379'
 production:
-  host: 'streaks-apicache.s4wtxr.ng.0001.usw2.cache.amazonws.com'
+  host: 'streaks-api-cache-001.s4wtxr.0001.usw2.cache.amazonaws.com'
   port: '6379'
