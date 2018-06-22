@@ -19,7 +19,7 @@ gem 'jwt' # Used for authorizing JWT Token
 gem 'json-jwt' # Helps convert the jwt token from AWS into different format
 
 gem 'fast_jsonapi' # Gem for building JSON API complient API responses
-
+gem "sidekiq"
 gem 'state_machines-activerecord' # For Active Record State changes
 
 # Use ActiveStorage variant
@@ -55,6 +55,7 @@ group :development, :test do
   gem 'timecop'
 # gems added for jsonapi suite
   gem 'rspec-rails', '~> 3.5.2'
+  gem 'rspec-sidekiq'
   gem 'factory_bot_rails', '~> 4.0'
   gem 'faker', '~> 1.7'
   gem 'swagger-diff', '~> 1.1'
