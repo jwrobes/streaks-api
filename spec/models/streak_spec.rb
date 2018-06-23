@@ -130,7 +130,7 @@ describe Streak, type: :model do
       expect(second_habit_on_day).to be_invalid
     end
 
-    it "adds errors to the streak" do
+    xit "adds errors to the streak" do
       streak = create(:streak, :active, max_habits_per_day: 1)
       player = streak.players.first
       second_habit_completed_time = Time.zone.now
