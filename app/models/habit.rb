@@ -19,11 +19,16 @@ class Habit < ApplicationRecord
   belongs_to :streak
   validate :is_not_over_max_habits_per_day_for_streak
 
+  scope :current_week, -> { where('completed_at > ?', DateTime.now.beginning_of_week(:sunday)) }
+
   private
 
   def is_not_over_max_habits_per_day_for_streak
-    count_of_habits_for_player_today = streak.habits.where(player_id: player.id).where('completed_at between ? AND ?', completed_at.beginning_of_day, completed_at.end_of_day).count 
-    if count_of_habits_for_player_today >= streak.max_habits_per_day
+    count_of_habits_for_player_today = streak.habits.where(player_id: player.id).where('completed_at between ? AND ?', completed_at.beginning_of_day, completed_at.end_of_day)
+    if id.present?
+      count_of_habits_for_player_today = count_of_habits_for_player_today.where.not(id: id)
+    end
+    if count_of_habits_for_player_today.count >= streak.max_habits_per_day
       errors.add(:streak, "Can't add more than max habit per day for this streak")
     end
   end

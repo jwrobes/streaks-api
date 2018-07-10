@@ -2,7 +2,7 @@ module CurrentPlayer
   class ActiveStreaksController < JsonapiApplicationController
     # Mark this as a JSONAPI controller, associating with the given resource
     include Concerns::PlayerSecured
-    jsonapi resource: ::StreakResource
+    jsonapi resource: ::CurrentPlayer::ActiveStreakResource
     strong_resource :streak do
       has_many :players
       has_many :habits
@@ -23,14 +23,21 @@ module CurrentPlayer
       instance = scope.resolve.first
       raise JsonapiCompliable::Errors::RecordNotFound unless instance
       raise Errors::NotAuthorized unless instance.players.include?(current_player)
-      render_jsonapi(instance, scope: false)
+      render_jsonapi(instance, {
+        include: {:habits => {}, :players => {}, :team => {}, :team_players => {}},
+        scope: false,
+      })
     end
 
     def update
       streak, success = jsonapi_update.to_a
 
       if success
-        render_jsonapi(streak, scope: false)
+        render_jsonapi(streak, {
+          include: {:habits => {}, :team => {}, :team_players => {}, :players =>{} },
+          no_force_includes: true,
+          scope: false
+        })
       else
         render_errors_for(streak)
       end

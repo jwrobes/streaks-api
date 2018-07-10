@@ -45,6 +45,16 @@ StrongResources.configure do
     attribute :description, :string
     attribute :habits_per_week, :integer
   end
+  strong_resource :team do
+    attribute :uuid, :string
+    attribute :name, :string
+    attribute :created_at, :timestamp
+  end
+  strong_resource :team_player do
+    attribute :player_id, :integer
+    attribute :team_id, :integer
+    attribute :color, :string
+  end
   strong_resource :player do
     attribute :user_name, :string
     attribute :uuid, :string

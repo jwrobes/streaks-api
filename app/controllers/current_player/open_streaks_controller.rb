@@ -58,6 +58,9 @@ module CurrentPlayer
       if new_player_count == Streak::MIN_PLAYERS
         team_uuid = streak.players.map(&:id).sort.join
         team = Team.find_or_create_by(uuid: team_uuid)
+        if team.team_players.count == 0
+          team.add_players(streak.players)
+        end
         streak.update!(team: team)
         streak.activate!
       end

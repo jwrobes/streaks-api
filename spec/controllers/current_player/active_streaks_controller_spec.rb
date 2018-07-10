@@ -43,7 +43,7 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
   end
 
   describe "PUT #update" do
-    it "reseponds successfully" do
+    xit "reseponds successfully with habit in params" do
       # mock authenticated token
       active_streak = create(:streak, :active, :with_players, {
         players_count: 6
@@ -55,7 +55,7 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
       expect(response).to be_success
     end
 
-    it "creates a new habit for this streak for current player" do
+    xit "creates a new habit for this streak for current player with habit in params" do
       # mock authenticated token
       active_streak = create(:streak, :active, :with_players, {
         players_count: 6
@@ -72,8 +72,40 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
 
     end
 
+
+    it "creates a new habit for this streak for current player" do
+      # mock authenticated token
+      active_streak = create(:streak, :active, :with_players, {
+        players_count: 6
+      })
+      current_player = active_streak.players.last
+      login_as(current_player)
+
+      expect do
+        patch :update, params: add_habit_to_active_streak_update_no_habit_or_player_params(active_streak), format: :json
+      end.
+      to change { Habit.count }.from(0).to(1)
+      expect(current_player.reload.habits.count).to eq(1)
+      expect(active_streak.habits.count).to eq(1)
+    end
+
+    it "creates a new habit for this streak for current player" do
+      # mock authenticated token
+      active_streak = create(:streak, :active, :with_players, {
+        players_count: 6
+      })
+      current_player = active_streak.players.last
+      login_as(current_player)
+
+      patch :update, params: add_habit_to_active_streak_update_no_habit_or_player_params(active_streak), format: :json
+      expect(response).to be_successful
+      habits_players_data = JSON.parse(response.body)["data"]["relationships"]["habits"]["data"].last
+      puts JSON.parse(response.body)
+      expect(habits_players_data["id"].to_i).to eq(Habit.last.id)
+    end
+
     context "when a current player adds over the daily limit for the streak" do
-      xit "does not create a new habit for this streak for current player" do
+      it "does not create a new habit for this streak for current player" do
         # mock authenticated token
         streak = create(:streak, :active, max_habits_per_day: 1)
         current_player = streak.players.first
@@ -84,7 +116,7 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         first_habit_on_day = create(:habit, streak: streak, player: current_player, completed_at: second_habit_completed_time - 1.hour)
 
         expect do
-          patch :update, params: add_habit_to_active_streak_update_params(streak, current_player), format: :json
+          patch :update, params: add_habit_to_active_streak_update_no_habit_or_player_params(streak), format: :json
         end.
         not_to change { Habit.count }.from(1)
 
@@ -107,6 +139,83 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         get :show, params: { id: active_streak.id  }, format: :json
         expect(response).to be_success
       end
+
+      it "returns active streak for participant with team_players" do
+        active_streak = create(:streak, :active)
+        active_streak.team.add_players(active_streak.players)
+        current_player = active_streak.players.last
+        habit = Habit.new(player: current_player, completed_at: Time.zone.now)
+        active_streak.habits << habit
+        login_as(current_player)
+
+        get :show, params: { id: active_streak.id, include: 'habits' }, format: :json
+        team_players_data = JSON.parse(response.body)["data"]["relationships"]["team_players"]["data"].first
+
+        expect(team_players_data["id"].to_i).to eq(active_streak.team_players.first.id)
+      end
+
+      it "returns active streak for participant with team" do
+        active_streak = create(:streak, :active)
+        active_streak.team.add_players(active_streak.players)
+        current_player = active_streak.players.last
+        habit = Habit.new(player: current_player, completed_at: Time.zone.now)
+        active_streak.habits << habit
+        login_as(current_player)
+
+        get :show, params: { id: active_streak.id, include: 'habits'}, format: :json
+        response_body = JSON.parse(response.body)
+        team_data = response_body["data"]["relationships"]["team"]["data"]
+
+
+        expect(team_data["id"].to_i).to eq(active_streak.team.id)
+      end
+
+      context "when there are habits for streak" do
+        it "returns active streak for participant with habit in response" do
+          active_streak = create(:streak, :active)
+          current_player = active_streak.players.last
+          habit = Habit.new(player: current_player, completed_at: Time.zone.now)
+          active_streak.habits << habit
+          login_as(current_player)
+
+          get :show, params: { id: active_streak.id, include: 'habits' }, format: :json
+          habit_data = JSON.parse(response.body)["data"]["relationships"]["habits"]["data"].first
+          expect(habit_data["id"].to_i).to eq(habit.id)
+        end
+      end
+    end
+
+    context "when you pass parameters for current_week" do
+      let(:tuesday_july_3_at_noon) { Time.zone.local(2018, 7, 3, 12, 0, 0) }
+      let(:sunday_july_1_midnight) { Time.zone.local(2018, 7, 1, 0, 0, 0) }
+      before do
+        Timecop.freeze(tuesday_july_3_at_noon)
+      end
+      after do
+        Timecop.return
+      end
+      it "returns active streak for participant only habits from current week in response" do
+        active_streak = create(:streak, :active, activated_at: sunday_july_1_midnight)
+        current_player = active_streak.players.last
+        habit_in_prior_week = create(:habit, {
+          player: current_player,
+          streak: active_streak,
+          completed_at: Time.zone.now - 1.week
+        })
+      current_player = active_streak.players.last
+        habit_on_tuesday = create(:habit, {
+          player: current_player,
+          streak: active_streak,
+          completed_at: tuesday_july_3_at_noon
+        })
+        login_as(current_player)
+
+        get :show, params: { 'id' => active_streak.id, 'include' => 'habits', 'filter[habits][current_week]' => true }, format: :json
+
+        habit_data = JSON.parse(response.body)["data"]["relationships"]["habits"]["data"]
+        expect(habit_data.count).to eq(1)
+        expect(habit_data.first["id"]).to eq(habit_on_tuesday.id.to_s)
+      end
     end
 
     context "when participant is not a player in the streak" do
@@ -122,6 +231,17 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
       end
     end
   end
+
+  def add_habit_to_active_streak_update_no_habit_or_player_params(active_streak)
+    {
+      id: active_streak.id,
+      "data": {
+        "type": "streaks",
+        "id": "#{active_streak.id}",
+      }
+    }
+  end
+
 
   def add_habit_to_active_streak_update_params(active_streak, player)
     {
