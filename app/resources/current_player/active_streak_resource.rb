@@ -1,5 +1,5 @@
 module CurrentPlayer
-  class StreakResource < ApplicationResource
+  class ActiveStreakResource < ApplicationResource
     type :streaks
     model Streak
 
@@ -7,24 +7,8 @@ module CurrentPlayer
       instance = model.find(update_params.delete(:id))
       instance.add_listener(context)
       instance.update_attributes(update_params)
-      instance.players << current_player
-      instance
-    end
-
-    def create(create_params)
-      m = model.new(create_params)
-      m.players << current_player
-      m.save
-      m
-    end
-
-    def destroy(id)
-      instance = model.find(id)
-      instance.add_listener(context)
-      instance.streak_players.find_by_player_id(current_player.id).destroy
-      if instance.players.count == 0
-        instance.destroy
-      end
+      instance.habits << Habit.new(player: current_player, completed_at: Time.zone.now)
+      instance.save
       instance
     end
 

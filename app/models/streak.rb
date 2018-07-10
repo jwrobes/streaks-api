@@ -19,7 +19,8 @@
 class Streak < ApplicationRecord
   belongs_to :team, optional: true
   has_many :streak_players
-  has_many :habits
+  has_many :team_players, through: :team
+  has_many :habits, autosave: true
   has_many :players, through: :streak_players, after_add: :notify_on_player_add, after_remove: :notify_on_player_remove
 
   validates :status, :habits_per_week, :title,  presence: true
@@ -27,6 +28,7 @@ class Streak < ApplicationRecord
   validate :minimum_number_of_players_for_active_streak
   validate :minimum_number_of_players_for_open_streak
   validate :team_presence_for_active_streak
+  validates_associated :habits
 
   scope :active, -> { where(status: 'active') }
   scope :open, -> { where(status: 'open') }

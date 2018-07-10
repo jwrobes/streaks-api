@@ -4,6 +4,7 @@ module CurrentPlayer
     jsonapi resource: StreakResource
     strong_resource :streak do
       has_many :players
+      has_many :habits
     end
 
     before_action :apply_strong_params, only: [:create, :update]
