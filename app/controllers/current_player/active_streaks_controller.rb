@@ -6,6 +6,7 @@ module CurrentPlayer
     strong_resource :streak do
       has_many :players
       has_many :habits
+      has_many :team_players
     end
 
     before_action :apply_strong_params, only: [:update]
@@ -27,7 +28,6 @@ module CurrentPlayer
       logger.info "#{"*"*80}Here are the team_players: #{instance.team_players.map(&:color).join(",")}"
       puts  "Here are the team_players: #{instance.team_players.map(&:color)}"
       render_jsonapi(instance, {
-        include: {:habits => {}, :players => {}, :team => {}, :team_players => {}},
         scope: false,
       })
     end

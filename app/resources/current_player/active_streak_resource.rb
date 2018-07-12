@@ -22,7 +22,30 @@ module CurrentPlayer
       resource: HabitResource,
       foreign_key: :streak_id
 
-    private
+    allow_sideload :teams, resource: TeamResource do
+      scope do |streaks|
+        Team.where(id: streaks.map(&:team_id))
+      end
+      assign do |streaks, teams|
+        streaks.each do |streak|
+          streak.team = teams.select { |t| t.id == streak.team_id }.first
+        end
+      end
+    end
+
+
+    allow_sideload :team_players, resource: TeamPlayerResource do
+      scope do |streaks|
+        TeamPlayer.where(team_id: streaks.map(&:team_id))
+      end
+      assign do |streaks, team_players|
+        streaks.each do |streak|
+          streak.team_players = team_players.select { |tp| tp.team_id == streak.team_id }
+        end
+      end
+    end
+
+      private
 
     def current_player
       context.current_player
