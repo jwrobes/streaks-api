@@ -1,10 +1,11 @@
 module CurrentPlayer
-  class ActiveStreaksController < JsonapiApplicationController
+  class StreaksController < JsonapiApplicationController
     # Mark this as a JSONAPI controller, associating with the given resource
     jsonapi resource: StreakResource
     strong_resource :streak do
       has_many :players
       has_many :habits
+      has_many :team_players
     end
 
     before_action :apply_strong_params, only: [:create, :update]
@@ -19,6 +20,8 @@ module CurrentPlayer
     # sparse fieldsets and statistics.
     def show
       scope = jsonapi_scope(Streak.where(id: params[:id]))
+      logger.info "#{"*"*80}IN THE STREAKS CONTROLLER This is right before we have the inclusion of all the extra resources on the show"  
+      logger.info "#{"*"*80}IN THE STREAKS CONTROLLER This Here are the team_players: #{instance.team_players.map(&:color).join(",")}"
       instance = scope.resolve.first
       raise JsonapiCompliable::Errors::RecordNotFound unless instance
       render_jsonapi(instance, scope: false)
