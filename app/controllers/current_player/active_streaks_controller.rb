@@ -24,8 +24,7 @@ module CurrentPlayer
       instance = scope.resolve.first
       raise JsonapiCompliable::Errors::RecordNotFound unless instance
       raise Errors::NotAuthorized unless instance.players.include?(current_player)
-      logger.info "#{"*"*80}This is right before we have the inclusion of all the extra resources on the show"  
-      logger.info "#{"*"*80}Here are the team_players: #{instance.team_players.map(&:color).join(",")}"
+      logger.info "#{"*"*80}This is right before we have the inclusion of all the extra resources on the show"
       puts  "Here are the team_players: #{instance.team_players.map(&:color)}"
       render_jsonapi(instance, {
         scope: false,

@@ -148,7 +148,7 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         active_streak.habits << habit
         login_as(current_player)
 
-        get :show, params: { id: active_streak.id, include: 'habits' }, format: :json
+        get :show, params: { id: active_streak.id, include: 'habits,team_players,teams,players' }, format: :json
         team_players_data = JSON.parse(response.body)["data"]["relationships"]["team_players"]["data"].first
 
         expect(team_players_data["id"].to_i).to eq(active_streak.team_players.first.id)
@@ -162,7 +162,7 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         active_streak.habits << habit
         login_as(current_player)
 
-        get :show, params: { id: active_streak.id, include: 'habits'}, format: :json
+        get :show, params: { id: active_streak.id, include: 'habits,team_players,teams,players'}, format: :json
         response_body = JSON.parse(response.body)
         team_data = response_body["data"]["relationships"]["team"]["data"]
 
