@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_17_041653) do
+ActiveRecord::Schema.define(version: 2018_07_17_152519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -78,6 +78,14 @@ ActiveRecord::Schema.define(version: 2018_05_17_041653) do
     t.string "uuid", null: false
     t.index ["name"], name: "index_teams_on_name", unique: true
     t.index ["uuid"], name: "index_teams_on_uuid"
+  end
+
+  create_table "weekly_streak_goals", force: :cascade do |t|
+    t.date "start_date"
+    t.date "end_date"
+    t.decimal "completion_percent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

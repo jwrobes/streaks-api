@@ -12,6 +12,9 @@ class SerializableStreak < JSONAPI::Serializable::Resource
   attribute :max_habits_per_day
   attribute :description
   attribute :title
+  # attribute :current_week_completion_goal do
+  #   WeeklyStreakGoal.current.completion_percent || 0.77
+  # end
   attribute :total_habits_in_week do
     @object.habits_per_week * @object.players.count
   end
