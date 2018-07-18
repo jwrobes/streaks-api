@@ -125,7 +125,6 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
   end
 
   describe "#GET show" do
-
     context "when participant is a streak player for streak" do
       it "returns active streak for participant" do
         active_streak, current_player = setup_active_streak_current_player
@@ -165,6 +164,15 @@ describe CurrentPlayer::ActiveStreaksController, type: :controller do
         get :show, params: { id: active_streak.id, include: 'habits' }, format: :json
         habit_data = JSON.parse(response.body)["data"]["relationships"]["habits"]["data"].first
         expect(habit_data["id"].to_i).to eq(habit.id)
+      end
+
+      it "returns the current week goal as part of the streak response" do
+        active_streak, current_player, habit = setup_active_streak_current_player(with_habit: true)
+
+        get :show, params: { id: active_streak.id, include: 'habits' }, format: :json
+
+        streak_attributes = JSON.parse(response.body)["data"]["attributes"]
+        expect(streak_attributes.keys).to include("current_week_goal")
       end
     end
 

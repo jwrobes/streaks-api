@@ -12,6 +12,9 @@
 
 class WeeklyStreakGoal < ApplicationRecord
   validates :start_date, :end_date, :completion_percent, presence: true
+
+  DEFAULT_COMPLETION_PERCENT = 0.60
+
   def self.current(current_date=Time.zone.today)
     find_by("start_date <= ? and end_date >= ?", current_date, current_date)
   end
