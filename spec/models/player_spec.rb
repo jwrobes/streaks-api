@@ -3,6 +3,7 @@
 # Table name: players
 #
 #  id         :bigint(8)        not null, primary key
+#  timezone   :string
 #  user_name  :string
 #  uuid       :string
 #  created_at :datetime         not null
@@ -27,4 +28,17 @@ describe Player, type: :model do
 
   it { is_expected.to validate_uniqueness_of(:uuid) }
   it { is_expected.to validate_uniqueness_of(:user_name) }
+
+  describe "#timzone" do
+    it "returns timezone when set" do
+      set_timezone = "America/New_York"
+      player = create(:player, timezone: set_timezone)
+      expect(player.timezone).to eq(set_timezone)
+    end
+
+    it "returns default timezone when no timezone set" do
+      player = create(:player)
+      expect(player.timezone).to eq(described_class::DEFAULT_TIMEZONE)
+    end
+  end
 end

@@ -2,15 +2,17 @@
 #
 # Table name: habits
 #
-#  id           :bigint(8)        not null, primary key
-#  completed_at :datetime
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  player_id    :integer
-#  streak_id    :integer
+#  id             :bigint(8)        not null, primary key
+#  completed_at   :datetime
+#  completed_date :date
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  player_id      :integer
+#  streak_id      :integer
 #
 # Indexes
 #
+#  index_habits_on_completed_date           (completed_date)
 #  index_habits_on_streak_id_and_player_id  (streak_id,player_id)
 #
 
