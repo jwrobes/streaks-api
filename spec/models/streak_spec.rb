@@ -246,5 +246,64 @@ describe Streak, type: :model do
       end
     end
   end
+
+  describe "#habit_projected" do
+    context "with one day range" do
+      let(:start_date) { Date.new(2018, 7, 24) }
+      let(:two_weeks_before_start_date) {  Date.new(2018, 7, 24)  - 14.days }
+      let(:end_date) { Date.new(2018, 7, 24) }
+
+      it "returns 1 projected habit with a streak with 7 habits a week" do
+        streak = create(:streak, :active, {
+          habits_per_week: 7
+        })
+        streak.update(activated_at: two_weeks_before_start_date.to_time)
+
+        expect(streak.habits_projected(start_date:start_date, end_date: end_date)).to eq(6)
+      end
+
+      it "returns 2 projected habit with a streak with 14 habits a week" do
+        streak = create(:streak, :active, {
+          habits_per_week: 14
+        })
+        streak.update(activated_at: two_weeks_before_start_date.to_time)
+
+        expect(streak.habits_projected(start_date:start_date, end_date: end_date)).to eq(12)
+      end
+    end
+
+    context "with one week range" do
+      let(:start_date) { Date.new(2018, 7, 18) }
+      let(:end_date) { Date.new(2018, 7, 24) }
+
+      it "returns 1 projected habit with a streak with 7 habits a week" do
+        streak = create(:streak, :active, {
+          habits_per_week: 7
+        })
+        streak.update(activated_at: start_date.to_time)
+
+        expect(streak.habits_projected(start_date:start_date, end_date: end_date)).to eq(42)
+      end
+
+      it "returns 2 projected habit with a streak with 14 habits a week" do
+        streak = create(:streak, :active, {
+          habits_per_week: 14
+        })
+        streak.update(activated_at: start_date.to_time)
+
+        expect(streak.habits_projected(start_date:start_date, end_date: end_date)).to eq(84)
+      end
+      context "with streak that was activated within the week range" do
+        it "returns a proportional portion of projected range" do
+          streak = create(:streak, :active, {
+            habits_per_week: 14
+          })
+          streak.update(activated_at: (start_date + 6.days).to_time)
+
+          expect(streak.habits_projected(start_date:start_date, end_date: end_date)).to eq(12)
+        end
+      end
+    end
+  end
 end
 

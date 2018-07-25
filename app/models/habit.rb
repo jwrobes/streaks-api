@@ -22,6 +22,7 @@ class Habit < ApplicationRecord
   validate :is_not_over_max_habits_per_day_for_streak
 
   scope :current_week, -> { where('completed_at > ?', DateTime.now.beginning_of_week(:sunday)) }
+  scope :between_dates, -> (date_range) { where(completed_date: date_range) }
 
   private
 
