@@ -3,6 +3,7 @@
 # Table name: players
 #
 #  id         :bigint(8)        not null, primary key
+#  timezone   :string
 #  user_name  :string
 #  uuid       :string
 #  created_at :datetime         not null
@@ -23,5 +24,11 @@ class Player < ApplicationRecord
 
   validates :user_name, :uuid, presence: true
   validates :uuid, :user_name, uniqueness: true
+
+  DEFAULT_TIMEZONE = "America/Los_Angeles"
+
+  def timezone
+    super || DEFAULT_TIMEZONE
+  end
 
 end

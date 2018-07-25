@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_17_152519) do
+ActiveRecord::Schema.define(version: 2018_07_25_025435) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(version: 2018_07_17_152519) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "completed_at"
+    t.date "completed_date"
+    t.index ["completed_date"], name: "index_habits_on_completed_date"
     t.index ["streak_id", "player_id"], name: "index_habits_on_streak_id_and_player_id"
   end
 
@@ -36,6 +38,7 @@ ActiveRecord::Schema.define(version: 2018_07_17_152519) do
     t.string "uuid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "timezone"
     t.index ["user_name"], name: "index_players_on_user_name", unique: true
     t.index ["uuid"], name: "index_players_on_uuid", unique: true
   end
