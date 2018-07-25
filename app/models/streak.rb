@@ -71,6 +71,23 @@ class Streak < ApplicationRecord
     end
   end
 
+  # habits completed
+  def habits_completed_count(start_date:, end_date:)
+    habits.between_dates(start_date..end_date).count
+  end
+
+  def habits_projected(start_date:, end_date:)
+    projected_start_date_for_streak = start_date
+    if activated_at > start_date
+      projected_start_date_for_streak = activated_at.to_date
+    end
+    number_of_days = (end_date -  projected_start_date_for_streak).to_i + 1
+    habits_per_day = habits_per_week / 7.0
+    habits_projected = (number_of_days * habits_per_day).floor
+    habits_projected == 0 ? 1 : habits_projected
+    habits_projected * players.count
+  end
+
   private
 
   def minimum_number_of_players_for_active_streak

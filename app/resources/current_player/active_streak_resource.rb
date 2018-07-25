@@ -7,12 +7,13 @@ module CurrentPlayer
       instance = model.find(update_params.delete(:id))
       instance.add_listener(context)
       instance.update_attributes(update_params)
+      current_player_date = Time.use_zone(current_player.timezone) do
+         Date.current
+      end
       instance.habits << Habit.new({
         player: current_player,
         completed_at: Time.zone.now,
-        completed_date: Time.use_zone(current_player.timezone) do
-         Date.today
-        end
+        completed_date: current_player_date,
       })
       instance.save
       instance

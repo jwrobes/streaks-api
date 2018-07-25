@@ -34,7 +34,7 @@ describe CurrentPlayer::ActiveStreakResource do
 
     context "when utc time is different than date for curent player" do
       let(:utc_date_july_24_but_los_angeles_date_july_23) do
-        Time.utc(2018, 7, 24, 6, 0)
+        Time.utc(2018, 7, 24, 0, 0)
       end
       before do
         Timecop.freeze(utc_date_july_24_but_los_angeles_date_july_23)

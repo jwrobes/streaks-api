@@ -76,5 +76,44 @@ describe Habit, type: :model do
         end
       end
     end
+
+    describe ".between_dates" do
+      it "returns only habits with completed dates in range" do
+        july_21 = Date.new(2018, 7, 21)
+        july_22 = Date.new(2018, 7, 22)
+        july_23 = Date.new(2018, 7, 23)
+        july_24 = Date.new(2018, 7, 24)
+        active_streak = create(:streak, :active)
+        player = active_streak.players.last
+        other_player = active_streak.players.first
+        create(:habit, {
+          player: player,
+          streak: active_streak,
+          completed_at: 3.days.ago,
+          completed_date: july_21,
+        })
+        create(:habit, {
+          player: other_player,
+          streak: active_streak,
+          completed_at: Time.zone.now,
+          completed_date: july_24,
+        })
+        habit_in_range = create(:habit, {
+          player: other_player,
+          streak: active_streak,
+          completed_at: 2.days.ago,
+          completed_date: july_22,
+        })
+        habit_in_range2 = create(:habit, {
+          player: player,
+          completed_at: 1.days.ago,
+          streak: active_streak,
+          completed_date: july_23,
+        })
+
+        expect(described_class.between_dates((july_22..july_23)))
+          .to match_array([habit_in_range, habit_in_range2])
+      end
+    end
   end
 end
