@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   require 'sidekiq/web'
+  require 'sidekiq/cron/web'
   mount Sidekiq::Web => '/sidekiq'
   scope path: '/streaks_api' do
     scope path: '/v1' do

@@ -20,6 +20,8 @@ gem 'json-jwt' # Helps convert the jwt token from AWS into different format
 
 gem 'fast_jsonapi' # Gem for building JSON API complient API responses
 gem "sidekiq"
+gem "sidekiq-cron", "~> 0.6.3"
+gem "rufus-scheduler", "3.4.2"
 gem 'state_machines-activerecord' # For Active Record State changes
 
 # Use ActiveStorage variant
@@ -38,6 +40,7 @@ group :test do
   # gem 'json-schema'
   # gem 'jsonapi-rspec'
 # gems added for jsonapi suite
+  gem 'rspec-sidekiq'
 end
 
 group :development, :test do
@@ -55,7 +58,6 @@ group :development, :test do
   gem 'timecop'
 # gems added for jsonapi suite
   gem 'rspec-rails', '~> 3.5.2'
-  gem 'rspec-sidekiq'
   gem 'factory_bot_rails', '~> 4.0'
   gem 'faker', '~> 1.7'
   gem 'swagger-diff', '~> 1.1'

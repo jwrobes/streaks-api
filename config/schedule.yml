@@ -1,0 +1,12 @@
+#config/schedule.yml
+# Sundays at 2:00 
+
+weekly_streak_goal_job:
+  cron: "0 2 * * 0"
+  class: "WeeklyStreakGoalWorker"
+  queue: default
+every_minute_goal:
+  cron: "* * * * *"
+  class: "TestWorker"
+  queue: default
+
