@@ -3,3 +3,5 @@ development:
   :pidfile: tmp/pids/sidekiq.pid
   :concurrency:  2
   :logfile: log/sidekiq.log
+production:
+  :concurrency: 6
