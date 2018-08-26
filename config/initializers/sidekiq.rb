@@ -24,17 +24,19 @@ redis_config.merge! redis_config.fetch(Rails.env, {})
 redis_config.symbolize_keys!
 
 Sidekiq.configure_server do |config|
-  if rails_env = 'development'
+  if rails_env == 'development'
     config.redis = { url: "redis://#{redis_config[:host]}:#{redis_config[:port]}/12"  }
   end
   schedule_file = "config/schedule.yml"
   if File.exist?(schedule_file) && Sidekiq.server?
     Sidekiq::Cron::Job.load_from_hash YAML.load_file(schedule_file)
   end
+  config.redis = { :size => 9  }
 end
 
-if rails_env = 'development'
-  Sidekiq.configure_client do |config|
+Sidekiq.configure_client do |config|
+  if rails_env == 'development'
     config.redis = { url: "redis://#{redis_config[:host]}:#{redis_config[:port]}/12"  }
   end
+  config.redis = { :size => 1  }
 end
